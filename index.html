@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OROGRANDE — Wrapper LED</title>
+  <style>
+    html, body {margin:0;padding:0;background:#000;height:100%;width:100%;overflow:hidden;}
+    .page {position:fixed;inset:0;display:grid;place-items:center;}
+    .canvas {position:relative;width:336px;height:252px;overflow:hidden;background:#000;}
+    iframe {position:absolute;top:0;left:0;border:0;transform-origin:0 0;}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="canvas" id="canvas">
+      <iframe id="frame" src="about:blank" allow="fullscreen" referrerpolicy="no-referrer"></iframe>
+    </div>
+  </div>
+<script>
+(function () {
+  const params = new URLSearchParams(location.search);
+  const W = parseInt(params.get("w") || "336", 10);
+  const H = parseInt(params.get("h") || "252", 10);
+  const url = params.get("url") || "https://www.orogrande.it/landing-screen";
+  const baseStr = params.get("base") || "1920x1080";
+  const [baseW, baseH] = baseStr.split("x").map(v => parseInt(v, 10));
+  const mode = (params.get("mode") || "cover").toLowerCase();
+  const canvas = document.getElementById("canvas");
+  canvas.style.width  = W + "px";
+  canvas.style.height = H + "px";
+  const iframe = document.getElementById("frame");
+  iframe.src = url;
+  iframe.width  = baseW;
+  iframe.height = baseH;
+  iframe.style.width  = baseW + "px";
+  iframe.style.height = baseH + "px";
+  let scaleX = W / baseW, scaleY = H / baseH, scale = 1, offX = 0, offY = 0;
+  if (mode === "stretch") {
+    iframe.style.transform = `translate(0px, 0px) scale(${scaleX}, ${scaleY})`;
+  } else {
+    scale = (mode === "contain") ? Math.min(scaleX, scaleY) : Math.max(scaleX, scaleY);
+    const scaledW = baseW * scale, scaledH = baseH * scale;
+    offX = (W - scaledW) / 2; offY = (H - scaledH) / 2;
+    iframe.style.transform = `translate(${offX}px, ${offY}px) scale(${scale})`;
+  }
+})();
+</script>
+</body>
+</html>
